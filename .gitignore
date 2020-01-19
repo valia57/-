@@ -9,6 +9,7 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+
 def start_screen():
     pygame.init()
     size = width, height = 600, 600
@@ -33,3 +34,123 @@ start_screen()
 size = width, height = 600, 600
 screen = pygame.display.set_mode(size)
 screen.fill((0, 0, 0))
+
+def load_level(filename):
+    filename = 'map.txt'
+    mapFile = open(filename, 'r')
+    level_map = [line for line in mapFile]
+    max_width = 16
+    return list(map(lambda x: x.ljust(max_width, ' '), level_map))
+
+
+
+def load_image(name, colorkey=None):
+    image = pygame.image.load(name).convert()
+    image = image.convert_alpha()
+    return image
+
+tile_images = {'кирпич': load_image('кирпич.png'), 'штаб': load_image('штаб.png')}
+player_image = load_image('танк.png')
+tile_width = tile_height = 50
+
+
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, tile_type, pos_x, pos_y):
+        super().__init__(tiles_group)
+        self.image = tile_images[tile_type]
+        list_of_tiles.append([pos_x, pos_y])
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y, player_image):
+        super().__init__(player_group)
+        self.image = load_image(player_image)
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
+
+
+# основной персонаж
+player = None
+star = []
+# группы спрайтов
+tiles_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+
+def generate_level(level):
+    new_player, x1, y1 = None, None, None
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            if level[y][x] == '.':
+                Tile('кирпич', x, y)
+            elif level[y][x] == '#':
+                Tile('штаб', x, y)
+            elif level[y][x] == '@':
+                x1 = x
+                y1 = x
+                new_player = Player(x, y, 'танк.png')
+    # вернем игрока, а также размер поля в клетках
+    return new_player, x1, y1
+
+list_of_tiles = []
+player, level_x, level_y = generate_level(load_level('map.txt'))
+level_x = 3
+level_y = 11
+while True:
+    level_y2 = level_y
+    e = True
+    ee = True
+    level_x2 = level_x
+    where = 1
+    for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    if [level_x, max(0, level_y - 1)] not in list_of_tiles:
+                        e = False
+                        player_group = pygame.sprite.Group()
+                        level_y = max(0, level_y - 1)
+                        player = Player(level_x, level_y, 'танк.png')
+                    else:
+                        player = Player(level_x, level_y, 'танк.png')
+                    where = 1
+                elif event.key == pygame.K_DOWN:
+                    if [level_x, min(11, level_y + 1)] not in list_of_tiles:
+                        e = False
+                        player_group = pygame.sprite.Group()
+                        level_y = min(11, level_y + 1)
+                        player = Player(level_x, level_y, 'танк3.png')
+                    else:
+                        player = Player(level_x, level_y, 'танк3.png')
+                    where = 3
+                elif event.key == pygame.K_LEFT:
+                    if [max(0, level_x - 1), level_y] not in list_of_tiles:
+                        ee = False
+                        player_group = pygame.sprite.Group()
+                        level_x = max(0, level_x - 1)
+                        player = Player(level_x, level_y, 'танк4.png')
+                    else:
+                        player = Player(level_x, level_y, 'танк4.png')
+                    where = 4
+                elif event.key == pygame.K_RIGHT:
+                    if [min(11, level_x + 1), level_y] not in list_of_tiles:
+                        ee = False
+                        player_group = pygame.sprite.Group()
+                        level_x = min(11, level_x + 1)
+                        player = Player(level_x, level_y, 'танк2.png')
+                    else:
+                        player = Player(level_x, level_y, 'танк2.png')
+                    where = 2
+                elif event.key == pygame.K_SPACE:
+                    0
+                    # star.append()
+    tiles_group.draw(screen)
+    player_group.draw(screen)
+    if not e:
+        pygame.draw.rect(screen, (0, 0, 0), (level_x * 50, level_y2 * 50, 50, 50))
+    elif not ee:
+        pygame.draw.rect(screen, (0, 0, 0), (level_x2 * 50, level_y * 50, 50, 50))
+    #for i in list1:
+    #    pygame.draw.rect(screen, ())
+    pygame.display.flip()
+    clock.tick(FPS)
