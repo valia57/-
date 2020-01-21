@@ -1,6 +1,7 @@
 import pygame
 import os
 import sys
+import random
 
 all_sprites = pygame.sprite.Group()
 FPS = 50
@@ -119,7 +120,7 @@ class Particle(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = pos
 
     def update(self):
-        global tiles_group, list_of_tiles
+        global tiles_group, list_of_tiles, screen
         # применяем гравитационный эффект:
         # движение с ускорением под действием гравитации
         self.velocity = [0, 0]
@@ -136,7 +137,6 @@ class Particle(pygame.sprite.Sprite):
         self.rect.y += self.velocity[1] * 50
         for i in range(len(list_of_tiles)):
             if self.rect.x // 50 * 50 == list_of_tiles[i][0] * 50 and self.rect.y // 50 * 50 == list_of_tiles[i][1] * 50:
-                print(list_of_tiles[i], len(list_of_tiles))
                 self.kill()
                 #tiles_group.kill()
                 tiles_group = pygame.sprite.Group()
@@ -146,9 +146,24 @@ class Particle(pygame.sprite.Sprite):
                             Tile('штаб', list_of_tiles[j][0], list_of_tiles[j][1], False)
                         else:
                             Tile('кирпич', list_of_tiles[j][0], list_of_tiles[j][1], False)
-                        #0
-                    #else:
-                        #list_of_tiles[j].f()
+                    elif i == j and list_of_tiles[j] == [6, 11]:
+                        size = width, height = 600, 600
+                        screen = pygame.display.set_mode(size)
+                        screen.fill((197, 187, 145))
+                        font = pygame.font.Font(None, 100)
+                        text = font.render("ВЫ ПРОИГРАЛИ", 1, (112, 83, 53))
+                        text_x = 10
+                        text_y = 50
+                        screen.blit(text, (text_x, text_y))
+                        while True:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    terminate()
+                                elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                                     sys.exit()# начинаем игру
+                            pygame.display.flip()
+                            clock.tick(FPS * 4)
+
                 del list_of_tiles[i]
                 break
 
@@ -162,9 +177,14 @@ def create_particles(position, why):
 
 clock = pygame.time.Clock()
 where = 1
+COUNT = 20
+ONE_TIME = 5
+NOW = 0
+LIVES = 3
 while True:
     level_y2 = level_y
     level_x2 = level_x
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
@@ -208,7 +228,7 @@ while True:
     tiles_group.draw(screen)
     all_sprites.update()
     all_sprites.draw(screen)
-    # print(len(tiles_group))
+
     player_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS * 4)
