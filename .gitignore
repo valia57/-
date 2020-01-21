@@ -81,7 +81,7 @@ class Bad(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(50 * pos_x, 50 * pos_y)
 
     def update(self, k=True, x=0, y=0):
-        global tiles_group, bad_group, player_group, list_of_bad, NOW, COUNT
+        global tiles_group, bad_group, player_group, list_of_bad, NOW, COUNT, Particle
         if k:
             list1 = []
             self.rect.y -= 1 * 50
@@ -121,15 +121,28 @@ class Bad(pygame.sprite.Sprite):
                 if place == 1:
                     self.rect.y -= 1 * 50
                     self.image = load_image('плох.png')
+                    a = random.choice([0, 1, 2])
+                    if a == 0:
+                        Particle((self.rect.x + 20, self.rect.y + 20), 1, 5, 1)
+                        #Particle((level_x * 50 + 20, level_y * 50 + 20), 1, 5, where)
                 elif place == 2:
                     self.rect.x -= 1 * 50
                     self.image = load_image('плох4.png')
+                    a = random.choice([0, 1, 2])
+                    if a == 0:
+                        Particle((self.rect.x + 20, self.rect.y + 20), 1, 5, 4)
                 elif place == 3:
                     self.rect.y += 1 * 50
                     self.image = load_image('плох3.png')
+                    a = random.choice([0, 1, 2])
+                    if a == 0:
+                        Particle((self.rect.x + 20, self.rect.y + 20), 1, 5, 3)
                 else:
                     self.rect.x += 1 * 50
                     self.image = load_image('плох2.png')
+                    a = random.choice([0, 1, 2])
+                    if a == 0:
+                        Particle((self.rect.x * 50 + 20, self.rect.y * 50 + 20), 1, 5, 2)
                 list_of_bad.append([self.rect.y, self.rect.x])
         else:
             if self.rect.x == x and self.rect.y == y:
@@ -197,8 +210,9 @@ class Particle(pygame.sprite.Sprite):
         # перемещаем частицу
         self.rect.x += self.velocity[0] * 50
         self.rect.y += self.velocity[1] * 50
-        if abs(self.rect.x - level_x * 50) <= 10 and abs(self.rect.y - level_y * 50) <= 10:
+        if self.rect.x // 50 * 50 == level_y * 50 and self.rect.y // 50 * 50 == level_x * 50:
             LIVES = max(0, LIVES - 1)
+            self.kill()
         for i in range(len(list_of_bad)):
             if self.rect.x // 50 * 50 == list_of_bad[i][1] and self.rect.y // 50 * 50 == list_of_bad[i][0]:
                 self.kill()
@@ -240,10 +254,7 @@ class Particle(pygame.sprite.Sprite):
         # убиваем, если частица ушла за экран
         if not self.rect.colliderect(screen_rect):
             self.kill()
-def create_particles(position, why):
-    # количество создаваемых частиц
-    # возможные скорости
-    Particle(position, 1, 5, why)
+
 
 clock = pygame.time.Clock()
 where = 1
@@ -295,7 +306,7 @@ while True:
                     player = Player(level_x, level_y, 'танк2.png')
                 where = 2
             elif event.key == pygame.K_SPACE:
-                create_particles((level_x * 50 + 20, level_y * 50 + 20), where)
+                Particle((level_x * 50 + 20, level_y * 50 + 20), 1, 5, where)
     if COUNT == 0:
         size = width, height = 600, 600
         screen = pygame.display.set_mode(size)
