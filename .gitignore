@@ -4,9 +4,10 @@ import sys
 import random
 
 all_sprites = pygame.sprite.Group()
-FPS = 50
+FPS = 7
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+bad_group = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
 def terminate():
@@ -73,6 +74,62 @@ class Player(pygame.sprite.Sprite):
         self.image = load_image(player_image)
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
 
+class Bad(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y, bad_image):
+        super().__init__(bad_group)
+        self.image = load_image(bad_image)
+        self.rect = self.image.get_rect().move(50 * pos_x, 50 * pos_y)
+
+    def update(self):
+        global tiles_group, bad_group, player_group, list_of_bad
+        list1 = []
+        self.rect.y -= 1 * 50
+        if (self.rect.y == -1 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                (pygame.sprite.spritecollideany(self, player_group)))):
+            pass
+        else:
+            list1.append(1)
+        self.rect.y += 1 * 50
+        self.rect.y += 1 * 50
+        if (self.rect.y == 12 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                (pygame.sprite.spritecollideany(self, player_group)))):
+            pass
+        else:
+            list1.append(3)
+        self.rect.y -= 1 * 50
+        self.rect.x -= 1 * 50
+        if (self.rect.x == -1 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                (pygame.sprite.spritecollideany(self, player_group)))):
+            pass
+        else:
+            list1.append(2)
+        self.rect.x += 1 * 50
+        self.rect.x += 1 * 50
+        if (self.rect.x == 12 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                (pygame.sprite.spritecollideany(self, player_group)))):
+            pass
+        else:
+            list1.append(4)
+        self.rect.x -= 1 * 50
+        if len(list1) != 0:
+            place = random.choice(list1)
+            if place == 1:
+                self.rect.y -= 1 * 50
+                self.image = load_image('плох.png')
+            elif place == 2:
+                self.rect.x -= 1 * 50
+                self.image = load_image('плох4.png')
+            elif place == 3:
+                self.rect.y += 1 * 50
+                self.image = load_image('плох3.png')
+            else:
+                self.rect.x += 1 * 50
+                self.image = load_image('плох2.png')
+            list_of_bad.append([self.rect.y, self.rect.x])
 
 # основной персонаж
 player = None
@@ -178,9 +235,12 @@ def create_particles(position, why):
 clock = pygame.time.Clock()
 where = 1
 COUNT = 20
-ONE_TIME = 5
+ONE_TIME = 4
 NOW = 0
 LIVES = 3
+list_of_bad = []
+LIST_OF_PLACE = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9],
+                 [0, 10], [0, 11]]
 while True:
     level_y2 = level_y
     level_x2 = level_x
@@ -190,7 +250,7 @@ while True:
             terminate()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                if [level_x, max(0, level_y - 1)] not in list_of_tiles:
+                if [level_x, max(0, level_y - 1)] not in list_of_tiles and [level_x * 50, max(0, level_y - 1) * 50] not in list_of_bad:
                     player_group = pygame.sprite.Group()
                     level_y = max(0, level_y - 1)
                     player = Player(level_x, level_y, 'танк.png')
@@ -198,7 +258,7 @@ while True:
                     player = Player(level_x, level_y, 'танк.png')
                 where = 1
             elif event.key == pygame.K_DOWN:
-                if [level_x, min(11, level_y + 1)] not in list_of_tiles:
+                if [level_x, min(11, level_y + 1)] not in list_of_tiles and [level_x * 50, min(11, level_y + 1) * 50] not in list_of_bad:
                     player_group = pygame.sprite.Group()
                     level_y = min(11, level_y + 1)
                     player = Player(level_x, level_y, 'танк3.png')
@@ -206,7 +266,7 @@ while True:
                     player = Player(level_x, level_y, 'танк3.png')
                 where = 3
             elif event.key == pygame.K_LEFT:
-                if [max(0, level_x - 1), level_y] not in list_of_tiles:
+                if [max(0, level_x - 1), level_y] not in list_of_tiles and [max(0, level_x - 1) * 50, level_y * 50] not in list_of_bad:
                     player_group = pygame.sprite.Group()
                     level_x = max(0, level_x - 1)
                     player = Player(level_x, level_y, 'танк4.png')
@@ -214,7 +274,7 @@ while True:
                     player = Player(level_x, level_y, 'танк4.png')
                 where = 4
             elif event.key == pygame.K_RIGHT:
-                if [min(11, level_x + 1), level_y] not in list_of_tiles:
+                if [min(11, level_x + 1), level_y] not in list_of_tiles and [min(11, level_x + 1) * 50, level_y * 50] not in list_of_bad:
                     player_group = pygame.sprite.Group()
                     level_x = min(11, level_x + 1)
                     player = Player(level_x, level_y, 'танк2.png')
@@ -240,12 +300,22 @@ while True:
                      sys.exit()# начинаем игру
             pygame.display.flip()
             clock.tick(FPS * 4)
+    while NOW < ONE_TIME:
+        coord = random.choice(LIST_OF_PLACE)
+        while [coord[1], coord[0]] in list_of_bad:
+            coord = random.choice(LIST_OF_PLACE)
+        list_of_bad.append([coord[1], coord[0]])
+        a = Bad(coord[1], coord[0], 'плох3.png')
+        NOW += 1
     screen.fill((0, 0, 0))
     tiles_group.draw(screen)
     all_sprites.update()
     all_sprites.draw(screen)
-
     player_group.draw(screen)
+    list_of_bad = []
+    bad_group.update()
+    bad_group.draw(screen)
     pygame.display.flip()
-    clock.tick(FPS * 4)
+    print(level_x)
+    clock.tick(FPS)
 pygame.quit()
