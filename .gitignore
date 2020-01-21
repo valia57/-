@@ -313,7 +313,7 @@ while True:
                      sys.exit()# начинаем игру
             pygame.display.flip()
             clock.tick(FPS * 4)
-    while NOW < ONE_TIME:
+    while NOW < min(ONE_TIME, COUNT):
         coord = random.choice(LIST_OF_PLACE)
         while [coord[1], coord[0]] in list_of_bad:
             coord = random.choice(LIST_OF_PLACE)
