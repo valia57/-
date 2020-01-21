@@ -358,5 +358,5 @@ while True:
     bad_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
-    print(LIVES)
+    # print(LIVES)
 pygame.quit()
