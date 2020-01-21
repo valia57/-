@@ -4,7 +4,7 @@ import sys
 import random
 
 all_sprites = pygame.sprite.Group()
-FPS = 7
+FPS = 5
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bad_group = pygame.sprite.Group()
@@ -210,7 +210,7 @@ class Particle(pygame.sprite.Sprite):
         # перемещаем частицу
         self.rect.x += self.velocity[0] * 50
         self.rect.y += self.velocity[1] * 50
-        if self.rect.x // 50 * 50 == level_y * 50 and self.rect.y // 50 * 50 == level_x * 50:
+        if abs(self.rect.x  - level_y * 50) <= 10 and abs(self.rect.y - level_x * 50) <= 10:
             LIVES = max(0, LIVES - 1)
             self.kill()
         for i in range(len(list_of_bad)):
@@ -358,4 +358,5 @@ while True:
     bad_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
+    print(LIVES)
 pygame.quit()
