@@ -80,56 +80,62 @@ class Bad(pygame.sprite.Sprite):
         self.image = load_image(bad_image)
         self.rect = self.image.get_rect().move(50 * pos_x, 50 * pos_y)
 
-    def update(self):
-        global tiles_group, bad_group, player_group, list_of_bad
-        list1 = []
-        self.rect.y -= 1 * 50
-        if (self.rect.y == -1 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
-                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
-                (pygame.sprite.spritecollideany(self, player_group)))):
-            pass
-        else:
-            list1.append(1)
-        self.rect.y += 1 * 50
-        self.rect.y += 1 * 50
-        if (self.rect.y == 12 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
-                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
-                (pygame.sprite.spritecollideany(self, player_group)))):
-            pass
-        else:
-            list1.append(3)
-        self.rect.y -= 1 * 50
-        self.rect.x -= 1 * 50
-        if (self.rect.x == -1 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
-                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
-                (pygame.sprite.spritecollideany(self, player_group)))):
-            pass
-        else:
-            list1.append(2)
-        self.rect.x += 1 * 50
-        self.rect.x += 1 * 50
-        if (self.rect.x == 12 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
-                (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
-                (pygame.sprite.spritecollideany(self, player_group)))):
-            pass
-        else:
-            list1.append(4)
-        self.rect.x -= 1 * 50
-        if len(list1) != 0:
-            place = random.choice(list1)
-            if place == 1:
-                self.rect.y -= 1 * 50
-                self.image = load_image('плох.png')
-            elif place == 2:
-                self.rect.x -= 1 * 50
-                self.image = load_image('плох4.png')
-            elif place == 3:
-                self.rect.y += 1 * 50
-                self.image = load_image('плох3.png')
+    def update(self, k=True, x=0, y=0):
+        global tiles_group, bad_group, player_group, list_of_bad, NOW, COUNT
+        if k:
+            list1 = []
+            self.rect.y -= 1 * 50
+            if (self.rect.y == -1 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                    (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                    (pygame.sprite.spritecollideany(self, player_group)))):
+                pass
             else:
-                self.rect.x += 1 * 50
-                self.image = load_image('плох2.png')
-            list_of_bad.append([self.rect.y, self.rect.x])
+                list1.append(1)
+            self.rect.y += 1 * 50
+            self.rect.y += 1 * 50
+            if (self.rect.y == 12 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                    (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                    (pygame.sprite.spritecollideany(self, player_group)))):
+                pass
+            else:
+                list1.append(3)
+            self.rect.y -= 1 * 50
+            self.rect.x -= 1 * 50
+            if (self.rect.x == -1 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                    (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                    (pygame.sprite.spritecollideany(self, player_group)))):
+                pass
+            else:
+                list1.append(2)
+            self.rect.x += 1 * 50
+            self.rect.x += 1 * 50
+            if (self.rect.x == 12 * 50 or pygame.sprite.spritecollideany(self, tiles_group) or
+                    (len(pygame.sprite.spritecollide(self, bad_group, False)) > 1 or
+                    (pygame.sprite.spritecollideany(self, player_group)))):
+                pass
+            else:
+                list1.append(4)
+            self.rect.x -= 1 * 50
+            if len(list1) != 0:
+                place = random.choice(list1)
+                if place == 1:
+                    self.rect.y -= 1 * 50
+                    self.image = load_image('плох.png')
+                elif place == 2:
+                    self.rect.x -= 1 * 50
+                    self.image = load_image('плох4.png')
+                elif place == 3:
+                    self.rect.y += 1 * 50
+                    self.image = load_image('плох3.png')
+                else:
+                    self.rect.x += 1 * 50
+                    self.image = load_image('плох2.png')
+                list_of_bad.append([self.rect.y, self.rect.x])
+        else:
+            if self.rect.x == x and self.rect.y == y:
+                self.kill()
+                NOW -= 1
+                COUNT -= 1
 
 # основной персонаж
 player = None
@@ -159,7 +165,6 @@ level_y = 11
 screen_rect = (0, 0, width, height)
 
 
-
 class Particle(pygame.sprite.Sprite):
     # сгенерируем частицы разного размера
     fire = [load_image("пуля.png")]
@@ -177,7 +182,7 @@ class Particle(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = pos
 
     def update(self):
-        global tiles_group, list_of_tiles, screen
+        global tiles_group, list_of_tiles, screen, bad_group, list_of_bad, level_x, level_y, LIVES
         # применяем гравитационный эффект:
         # движение с ускорением под действием гравитации
         self.velocity = [0, 0]
@@ -192,6 +197,15 @@ class Particle(pygame.sprite.Sprite):
         # перемещаем частицу
         self.rect.x += self.velocity[0] * 50
         self.rect.y += self.velocity[1] * 50
+        if abs(self.rect.x - level_x * 50) <= 10 and abs(self.rect.y - level_y * 50) <= 10:
+            LIVES = max(0, LIVES - 1)
+        for i in range(len(list_of_bad)):
+            if self.rect.x // 50 * 50 == list_of_bad[i][1] and self.rect.y // 50 * 50 == list_of_bad[i][0]:
+                self.kill()
+                # bad_group = pygame.sprite.Group()
+                del list_of_bad[i]
+                break
+        bad_group.update(False, self.rect.x // 50 * 50, self.rect.y // 50 * 50)
         for i in range(len(list_of_tiles)):
             if self.rect.x // 50 * 50 == list_of_tiles[i][0] * 50 and self.rect.y // 50 * 50 == list_of_tiles[i][1] * 50:
                 self.kill()
@@ -219,8 +233,7 @@ class Particle(pygame.sprite.Sprite):
                                 elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                                      sys.exit()# начинаем игру
                             pygame.display.flip()
-                            clock.tick(FPS * 4)
-
+                            clock.tick(FPS)
                 del list_of_tiles[i]
                 break
 
@@ -307,6 +320,23 @@ while True:
         list_of_bad.append([coord[1], coord[0]])
         a = Bad(coord[1], coord[0], 'плох3.png')
         NOW += 1
+    if LIVES == 0:
+        size = width, height = 600, 600
+        screen = pygame.display.set_mode(size)
+        screen.fill((197, 187, 145))
+        font = pygame.font.Font(None, 100)
+        text = font.render("ВЫ ПРОИГРАЛИ", 1, (112, 83, 53))
+        text_x = 10
+        text_y = 50
+        screen.blit(text, (text_x, text_y))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+                elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                     sys.exit()# начинаем игру
+            pygame.display.flip()
+            clock.tick(FPS)
     screen.fill((0, 0, 0))
     tiles_group.draw(screen)
     all_sprites.update()
@@ -316,6 +346,5 @@ while True:
     bad_group.update()
     bad_group.draw(screen)
     pygame.display.flip()
-    print(level_x)
     clock.tick(FPS)
 pygame.quit()
