@@ -223,7 +223,23 @@ while True:
                 where = 2
             elif event.key == pygame.K_SPACE:
                 create_particles((level_x * 50 + 20, level_y * 50 + 20), where)
-
+    if COUNT == 0:
+        size = width, height = 600, 600
+        screen = pygame.display.set_mode(size)
+        screen.fill((197, 187, 145))
+        font = pygame.font.Font(None, 100)
+        text = font.render(" ВЫ ВЫИГРАЛИ", 1, (112, 83, 53))
+        text_x = 10
+        text_y = 50
+        screen.blit(text, (text_x, text_y))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+                elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                     sys.exit()# начинаем игру
+            pygame.display.flip()
+            clock.tick(FPS * 4)
     screen.fill((0, 0, 0))
     tiles_group.draw(screen)
     all_sprites.update()
